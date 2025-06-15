@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kado Ulang Tahun Bocchi Style</title>
+  <style>
+    :root {
+      --pink: #f5c2e7;
+      --blue: #89b4fa;
+      --purple: #cba6f7;
+      --yellow: #f9e2af;
+      --dark: #1e1e2e;
+    }html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(270deg, var(--pink), var(--purple), var(--blue));
+  background-size: 600% 600%;
+  animation: gradientMove 10s ease infinite;
+  color: var(--yellow);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.click-text {
+  font-size: 26px;
+  margin-top: 20px;
+  color: white;
+  border-right: 2px solid white;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  animation: typing 2.5s steps(20, end) forwards, blink 1s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 230px; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+.gift-img {
+  width: 220px;
+  margin-top: 30px;
+  cursor: pointer;
+  border-radius: 20px;
+  box-shadow: 0 0 30px var(--yellow);
+  animation: pulse 1.5s infinite;
+  transition: transform 0.3s;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px var(--yellow); }
+  50% { box-shadow: 0 0 30px var(--pink); }
+  100% { box-shadow: 0 0 10px var(--yellow); }
+}
+
+.gift-img:hover {
+  transform: scale(1.05);
+}
+
+.card {
+  display: none;
+  padding: 30px;
+  background-color: rgba(30, 30, 46, 0.9);
+  margin: 30px auto;
+  border-radius: 20px;
+  color: var(--pink);
+  max-width: 500px;
+  animation: pop 0.8s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bocchi-img {
+  width: 250px;
+  margin-top: 20px;
+  border-radius: 20px;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>  <div class="click-text" id="klikText">Klik Kadonya!</div>  <img src="opek.png" alt="Kado" class="gift-img" onclick="bukaKado()" id="kadoImage">  <div class="card" id="kadoContent">
+    <h2>🎉 Selamat ultah!! ^•^ 🎉</h2>
+    <p>selamat ultah ngentot!!.. dirjo itu bau tengik!!. kasian sperma nya masih nyala.. hihi becanda, dan nikmati harimu dengan penuh absurd dan bermakna 🎸</p>
+    <img src="imut.jpg" class="bocchi-img">
+  </div><audio id="soundEffect" src="Control_the_urges_mydressupdarling_vinlandsaga_onepunchman_V1.mp3" preload="auto"></audio> <audio id="backsound" src="bocchi in the rock.mp4" preload="auto" loop></audio>
+
+  <script>
+    function bukaKado() {
+      document.getElementById('kadoImage').style.display = 'none';
+      document.getElementById('klikText').style.display = 'none';
+      document.getElementById('kadoContent').style.display = 'block';
+
+      const sfx = document.getElementById("soundEffect");
+      const bgm = document.getElementById("backsound");
+
+      sfx.play();
+      jalankanConfetti();
+
+      sfx.onended = () => {
+        bgm.play();
+      };
+    }
+
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function buatConfetti() {
+      for (let i = 0; i < 150; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 10 + 5,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+          tilt: Math.random() * 10 - 5,
+          tiltAngle: 0,
+          tiltAngleIncrement: Math.random() * 0.07 + 0.05
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach((c, i) => {
+        c.tiltAngle += c.tiltAngleIncrement;
+        c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+        c.tilt = Math.sin(c.tiltAngle) * 15;
+
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+        ctx.stroke();
+
+        if (c.y > canvas.height) {
+          confetti[i] = {
+            ...c,
+            x: Math.random() * canvas.width,
+            y: -10
+          };
+        }
+      });
+    }
+
+    function jalankanConfetti() {
+      buatConfetti();
+      function loop() {
+        drawConfetti();
+        requestAnimationFrame(loop);
+      }
+      loop();
+    }
+  </script></body>
+</html>
